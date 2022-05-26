@@ -8,6 +8,7 @@ import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import RowPool from './RowPool';
 import CardPool from './CardPool';
 import Footer from "../../components/Footer/Footer";
+import { useMediaQuery } from "@material-ui/core";
 
 
 
@@ -22,7 +23,7 @@ const Pool = ({ account, pooldatas, tokenInfo, fetchPoolData }) => {
     const [pools, setPools] = useState(pooldatas);
 
     const dropdown = useRef();
-
+    const isSmallScreen = useMediaQuery("(max-width: 450px)");
     useEffect(() => {
         document.addEventListener('mouseup', function (event) {
             if (dropdown.current && !dropdown.current.contains(event.target)) {
@@ -89,7 +90,7 @@ const Pool = ({ account, pooldatas, tokenInfo, fetchPoolData }) => {
                         <Box width={'292px'} height={'95px'}>
                             <img src={'/images/logo.png'} width={'100%'} height={'100%'} />
                         </Box>
-                        <Box fontSize={'12px'} color={'white'} maxWidth={'320px'} mt={'10px'}>
+                        <Box fontSize={'12px'} color={'white'} maxWidth={isSmallScreen ? '260px' : '320px'} mt={'10px'}>
                             Stake your $OGEM tokens to earn passive income.
                             High APR, low risk.
                         </Box>
@@ -97,13 +98,13 @@ const Pool = ({ account, pooldatas, tokenInfo, fetchPoolData }) => {
                 </StrokePanel>
                 <PoolPanel>
                     <OptionPanel mt={'20px'}>
-                        <Box display={'flex'} alignItems={'center'}>
+                        <Box display={'flex'} alignItems={'center'} mt={'16px'}>
                             <RowView onClick={() => setViewType(false)} active={viewtype} mr={'10px'} />
-                            <CardView onClick={() => setViewType(true)} active={viewtype} mr={'30px'} />
+                            <CardView onClick={() => setViewType(true)} active={viewtype} mr={isSmallScreen ? '10px' : '30px'} />
                             <StakedOnlyPanel active={stakedonly} onClick={() => setStakedOnly(!stakedonly)}>
                                 <Box />
                             </StakedOnlyPanel>
-                            <Box ml={'5px'} fontSize={'11px'} color={'#b7e2fa'} mr={'25px'}>Staked Only </Box>
+                            <Box ml={'5px'} fontSize={isSmallScreen ? '9px' : '11px'} color={'#b7e2fa'} mr={isSmallScreen ? '10px' : '25px'}>Staked Only </Box>
                             <LiveFinishPanel active={livefinish}>
                                 <Box onClick={() => setLiveFinish(false)} width={'40%'}>Live</Box>
                                 <Box onClick={() => setLiveFinish(true)} width={'60%'}>Finished</Box>
@@ -128,7 +129,7 @@ const Pool = ({ account, pooldatas, tokenInfo, fetchPoolData }) => {
 
                             <Box>
                                 <Box fontSize={'9px'} color={'#b7e2fa'} fontWeight={'bold'}>SEARCH</Box>
-                                <Criteria type='text' style={{ width: '163px', height: '31px' }} value={criteria} onChange={(e) => setCriteria(e.target.value)} />
+                                <Criteria type='text' style={{ width: isSmallScreen ? '120px' : '163px', height: '31px' }} value={criteria} onChange={(e) => setCriteria(e.target.value)} />
                             </Box>
                         </Box>
                     </OptionPanel>
@@ -158,17 +159,28 @@ const StrokeText = styled(Box)`
     }
 `;
 const StrokePanel = styled(Box)`
+    >div>div:nth-child(1){
+    @media screen and (max-width : 450px){
+        width : 250px;
+        height : 80px;
+        margin : 0 auto;
+    }
+}
  `;
 
 const OptionPanel = styled(Box)`
     display : flex;
     justify-content: space-between;
-    @media screen and (max-width : 900px){
+    @media screen and (max-width : 680px){
         flex-direction : column;
         >div{
             margin-bottom : 10px;
         }
         margin-left : 30px;
+    }
+    @media screen and (max-width : 450px){
+        margin : 0;
+        align-items : center;
     }
 `;
 

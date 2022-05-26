@@ -10,6 +10,7 @@ import { Shitface_BNB_ADDR } from "../../abis/address";
 import PriceChart from '../../components/Tracker/PriceChart'
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts/highstock';
+import { useMediaQuery } from "@material-ui/core";
 import {
   ResponsiveContainer,
   XAxis,
@@ -51,6 +52,7 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
     `${lastPayoutTime()}`
   ];
 
+  const isSmallScreen = useMediaQuery('(max-width: 450px)');
   useEffect(() => {
     if (!tokentxlist) return;
     const _txinfo = fetchTransactionData(tokentxlist, timetab)
@@ -336,7 +338,7 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
     <>
       <StyledContainer>
         <Box width={'fit-content'} mx={'auto'}>
-          <Box width={'364'} height={'119px'}>
+          <Box width={isSmallScreen ? '280px' : '364px'} height={isSmallScreen ? '95px' : '119px'}>
             <img src={'/images/logo.png'} width={'100%'} height={'100%'} />
           </Box>
           <Box width={'260px'} fontSize={'12px'} color={'white'} textAlign={'center'} mx={'auto'} mt={'5px'} lineHeight={'14px'}>
@@ -347,28 +349,28 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
         <Box>
           <RewardPanel>
             {rewardTitles.map((data, i) => {
-              return <Panel type='primary' maxWidth={'409px'} width={'100%'} height={'140px'} padding={'15px'} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
-                {i === 0 ? <Box width={'123px'} height={'123px'}>
+              return <Panel type='primary' maxWidth={'409px'} width={'100%'} height={isSmallScreen ? '120px' : '140px'} padding={isSmallScreen ? '10px' : '15px'} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
+                {i === 0 ? <Box width={isSmallScreen ? '80px' : '123px'} height={isSmallScreen ? '80px' : '123px'}>
                   <img src={`/images/reward1.png`} width={'100%'} height={'100%'} />
                 </Box>
                   : ''}
-                {i === 1 ? <Box width={'110px'} height={'110px'} mt = {'12px'}>
+                {i === 1 ? <Box width={isSmallScreen ? '72px' : '110px'} height={isSmallScreen ? '72px' : '110px'} mt={'12px'}>
                   <img src={`/images/reward2.png`} width={'100%'} height={'100%'} />
                 </Box>
                   : ''}
-                {i === 2 ? <Box width={'140px'} height={'140px'}>
+                {i === 2 ? <Box width={isSmallScreen ? '90px' : '140px'} height={isSmallScreen ? '90px' : '140px'}>
                   <img src={`/images/reward3.png`} width={'100%'} height={'100%'} />
                 </Box>
                   : ''}
                 <Box>
-                  <Box fontSize={'28px'} color={'white'} display={'flex'} justifyContent={'end'}>
+                  <Box fontSize={isSmallScreen ? '21px' : '28px'} color={'white'} display={'flex'} justifyContent={'end'}>
                     {rewardValues[i].split(' ')[0].includes('null') ?
-                      <Skeleton variant={'text'} width={'180px'} style={{ transform: 'unset' }} />
+                      <Skeleton variant={'text'} width={isSmallScreen ? '100px' : '180px'} style={{ transform: 'unset' }} />
                       : rewardValues[i].split(' ')[0]}
                     <Box mr={'10px'} />
                     <span style={{ color: '#b7e2fa' }}>{rewardValues[i].split(' ')[1]}</span>
                   </Box>
-                  <Box fontSize={'14px'} color={'#b7e2fa'} textAlign={'right'}>
+                  <Box fontSize={isSmallScreen ? '12px' : '14px'} color={'#b7e2fa'} textAlign={'right'}>
                     {data}
                   </Box>
                 </Box>
@@ -392,7 +394,7 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
           </BalancePanel>
 
           <LiveChartPanel>
-            <Panel type={'primary'} display={'flex'} justifyContent={'center'} width={'100%'} alignItems={'center'} maxWidth={'890px'} flexDirection={'column'} minHeight={'259px'}>
+            <Panel type={'primary'} display={'flex'} justifyContent={'center'} width={'100%'} alignItems={'center'} maxWidth={'890px'} flexDirection={'column'} minHeight={!isSmallScreen ? '259px' : '170px'}>
               {!tokenPriceList.length ?
                 <>
                   <Box color={'white'} fontSize={'80px'} lineHeight={'102px'}>LIVE CHART HERE</Box>
@@ -753,6 +755,9 @@ const Panel = styled(Box)`
   @media screen and (max-width : 1250px){
       max-width : calc(100% - 40px)!important;
   }
+  @media screen and (max-width : 450px){
+    max-width : calc(100% - 20px)!important;
+  }
 `
 
 const TimeTab = styled(Box)`
@@ -846,13 +851,13 @@ const TxListPanel = styled(Box)`
   }
   @media screen and (max-width : 550px){
       >div{
-          padding-left : 20px;
-          padding-right : 20px;
+          padding-left : 10px;
+          padding-right : 10px;
          >div{
              font-size : 12px;
          }
          >div:nth-child(1){
-             font-size : 27px;
+             font-size : 18px;
          }
       }
       >div>div:nth-child(2)>div{

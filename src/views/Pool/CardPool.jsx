@@ -25,6 +25,7 @@ import { BiLockAlt } from 'react-icons/bi';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs'
 import { ethers } from "ethers";
 import ConnectMenu from "../../components/TopBar/ConnectMenu";
+import { useMediaQuery } from "@material-ui/core";
 
 const customStyles1 = {
     content: {
@@ -49,11 +50,11 @@ const customStyles = {
         bottom: 'auto',
         marginRight: '-50%',
         maxHeight: 'calc(100vh - 60px)',
-        width: '100%',
+        width: 'calc(100% - 20px)',
         maxWidth: '500px',
         transform: 'translate(-50%, -50%)',
         fontFamily: 'Poppins',
-        borderRadius: '20px'
+        borderRadius: '10px'
     },
 };
 
@@ -83,7 +84,7 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
 
     const { connect, hasCachedProvider, provider, chainID, connected } = useWeb3Context();
 
-
+    const isSmallScreen = useMediaQuery("(max-width: 450px)");
     function tokenToUSD(amount, decimal) {
         if (!tokenInfo || !amount) return 'null';
         let temp = (Number(amount) * Number(tokenInfo.price.price));
@@ -318,9 +319,9 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
                                 <Box
                                     style={{ cursor: "pointer", background: "rgb(64 75 151)" }}
                                     color={"white"}
-                                    padding={"10px"}
+                                    padding={isSmallScreen ? '8px' : "10px"}
                                     borderRadius={"10px"}
-                                    fontSize={"30px"}
+                                    fontSize={isSmallScreen ? '16px' : "30px"}
                                     onClick={() => {
                                         setCalcAmount(calcshowtype ? tokenInfo?.balance * tokenInfo?.price.price :
                                             tokenInfo?.balance)
@@ -474,9 +475,7 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
                         </PoolHeader>
                         <Box padding={'12px 16px'}>
                             <APRPanel>
-                                <Box fontSize={'11pxpx'}>
-                                    <Box fontSize={'11px'} color={'white'}>APR:</Box>
-                                </Box>
+                                <Box fontSize={'11px'} color={'white'}>APR:</Box>
                                 {
                                     data.rate ?
                                         <Box display={'flex'} alignItems={'center'} style={{ cursor: 'pointer' }} onClick={() => {

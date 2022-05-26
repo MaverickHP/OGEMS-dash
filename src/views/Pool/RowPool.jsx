@@ -23,6 +23,7 @@ import { BiLockAlt } from 'react-icons/bi';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs'
 import { ethers } from "ethers";
 import ConnectMenu from "../../components/TopBar/ConnectMenu";
+import { useMediaQuery } from "@material-ui/core";
 
 
 const compound = [
@@ -42,7 +43,7 @@ const customStyles1 = {
         maxWidth: '500px',
         transform: 'translate(-50%, -50%)',
         fontFamily: 'Poppins',
-        borderRadius: '20px',
+        borderRadius: '10px',
     },
 };
 
@@ -54,11 +55,11 @@ const customStyles = {
         bottom: 'auto',
         marginRight: '-50%',
         maxHeight: 'calc(100vh - 60px)',
-        width: '100%',
+        width: 'calc(100% - 20px)',
         maxWidth: '500px',
         transform: 'translate(-50%, -50%)',
         fontFamily: 'Poppins',
-        borderRadius: '20px'
+        borderRadius: '10px'
     },
 };
 
@@ -80,6 +81,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
     const [compoundday, setCompoundDay] = useState(-1);
     const [showcalcdetail, setShowCalcDetail] = useState(false);
     const [compoundcalc, setCompoundCalc] = useState(false);
+    const isSmallScreen = useMediaQuery("(max-width: 450px)");
 
 
     function tokenToUSD(amount, decimal) {
@@ -433,9 +435,9 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                             <Box
                                 style={{ cursor: "pointer", background: "rgb(64 75 151)" }}
                                 color={"white"}
-                                padding={"10px"}
+                                padding={isSmallScreen ? '8px' : "10px"}
                                 borderRadius={"10px"}
-                                fontSize={"30px"}
+                                fontSize={isSmallScreen ? '16px' : "30px"}
                                 onClick={() => { setAmount(modaldata.balance.toString()) }}
                             >
                                 MAX
@@ -479,7 +481,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                                     }
                                 </Box>
                             </Box>
-                            <Box fontSize={'9px'} width={'80px'}>
+                            <Box fontSize={'9px'} width={'80px'} display={isSmallScreen ? 'none' : ''}>
                                 <Box fontSize={'9px'} color={'#b7e2fa'}>OGEM Earned</Box>
                                 {data.pendingReward ?
                                     <Box fontSize={'12px'} color={'white'}>{numberWithCommas(Number(data.pendingReward).toFixed(5))}</Box> :
@@ -786,7 +788,7 @@ const Detail = styled(Box)`
                 max-width : 400px;
             }
         }
-        height : ${({ active }) => active ? '525px' : '0'};
+        height : ${({ active }) => active ? '495px' : '0'};
     }
 `;
 
@@ -913,20 +915,20 @@ const ModalActions = styled(Box)`
 
 const ModalButton = styled.button`
     text-align : center;
-    border : 2px solid #add39c;
-    background : white;
+    background : #1c1c1c;
     color : #add39c;
     padding : 10px 70px;
     font-size : 21px;
-    border-radius : 10px;
+    border-radius : 5px;
+    border : none;
     cursor : pointer;
     transition : all 0.3s;
     :hover{
-        background : #add39c;
+        background : rgb(40,40,40);
     color : white;
     }
     :disabled{
-        background : rgb(233, 234, 235);
+        background : #1c1c1cb2;
         color : rgb(189, 194, 196);
         cursor : not-allowed;
         border : none;
@@ -947,25 +949,26 @@ const CustomInput = styled(OutlinedInput)`
 `;
 
 const DaySelectPanel = styled(Box)`
-    background-color: rgb(239, 244, 245);
-    border-radius: 16px;
+    background-color: rgb(50, 50, 50);
+    border-radius: 10px;
     display: inline-flex;
     border: 1px solid rgb(233, 234, 235);
     width : 100%;
     font-size : 21px;
->div{
+    padding : 5px;
+    >div{
         display : flex;
-    justify-content : center;
-    align-items : center;
-    cursor : pointer;
-    padding : 10px 0px;
-}
+        justify-content : center;
+        align-items : center;
+        cursor : pointer;
+        padding : 5px 0px;
+    }
     `;
 
 const DaySelectCard = styled(Box)`
-    background-color: ${({ active }) => active ? 'rgb(15, 33, 49)' : 'unset'};
+    background-color: ${({ active }) => active ? 'rgb(100,100,100)' : 'unset'};
     color: ${({ active }) => active ? 'white' : 'unset'};
-    border-radius : 16px;
+    border-radius : 10px;
     transition : all 0.2s;
 `;
 export default RowPool;

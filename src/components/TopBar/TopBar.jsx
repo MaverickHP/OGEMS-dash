@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
 
 function TopBar({ theme, toggleTheme, handleDrawerToggle }) {
   const classes = useStyles();
-  const isVerySmallScreen = useMediaQuery("(max-width: 355px)");
+  const isVerySmallScreen = useMediaQuery("(max-width: 450px)");
   const [hamburgeropen, setHamburgerOpen] = useState(false);
 
   const dialog = useRef();
@@ -80,7 +80,9 @@ function TopBar({ theme, toggleTheme, handleDrawerToggle }) {
         </Box>
         <Box mr={'20px'} display={'flex'} alignItems={'center'}>
           <Box display={'flex'} alignItems={'center'} height={'64px'} >
-            <ConnectMenu theme={theme} />
+            <Box display={isVerySmallScreen ? 'none' : 'unset'}>
+              <ConnectMenu theme={theme} />
+            </Box>
             <Hamburger onClick={() => setHamburgerOpen(!hamburgeropen)} ref={hamburger}>
               <GiHamburgerMenu />
             </Hamburger>
@@ -95,6 +97,7 @@ function TopBar({ theme, toggleTheme, handleDrawerToggle }) {
             <Box>FAQ</Box>
             <Box><a href={'https://onlygems-finance.gitbook.io/onlygems-finance/'} target={'_blank'} style={{ textDecoration: 'unset', color: 'white' }}>WhitePaper</a></Box>
             <Box><a href={'https://onlygems.finance/'} target={'_blank'} style={{ textDecoration: 'unset', color: 'white' }}>Official Website</a></Box>
+
           </Menus>
 
           <Socials open={hamburgeropen}>
@@ -102,6 +105,7 @@ function TopBar({ theme, toggleTheme, handleDrawerToggle }) {
             <Box ><a href={'https://t.me/onlygemsfinance'} target={'_blank'} style={{ textDecoration: 'unset', color: 'white' }}><FaTwitter /></a></Box>
             <Box ><a href={'https://t.me/onlygemsfinance'} target={'_blank'} style={{ textDecoration: 'unset', color: 'white' }}><FaPaperPlane /></a></Box>
           </Socials>
+          <Box width={'fit-content'} mx={'auto'} display={hamburgeropen ? '' : 'none'}><ConnectMenu theme={theme} /> </Box>
         </HamburgerMenu >
       </div >
     </StyledContainer >
@@ -190,49 +194,6 @@ const Socials = styled(Box)`
     }
 `;
 
-const ConnectButton = styled(Box)`
-    align-items: center;
-    border-radius: 20px;
-    width : 130px;
-    height : 26px;
-    box-shadow: rgb(14 14 44 / 40%) 0px -1px 0px 0px inset;
-    cursor: pointer;
-    display: inline-flex;
-    font-family: inherit;
-    font-size: 12px;
-    font-weight: 600;
-    justify-content: center;
-    opacity: 1;
-    height: 32px;
-    background-color: rgb(31, 199, 212);
-    color: white;
-`;
-
-const ConnectedButton = styled(Box)`
-    width : 114px;
-    height : 26px;
-    display : flex;
-    justify-content : center;
-    align-items : center;
-    background-color : white;
-    color : #56ced7;
-    border-radius : 20px;
-    font-size : 11px;
-    position : relative;
-    overflow : unset;
-    >div{
-        position : absolute;
-        border-radius : 50%;
-        width : 29px;
-        height : 29px;
-        border: 1px solid #56ced7;
-        top : -2px;
-        left : -10px;
-        background-color : white;
-    }
-    cursor : pointer;
-`;
-
 const Hamburger = styled.div`
     font-size : 24px;
     color : white;
@@ -247,7 +208,7 @@ const Hamburger = styled.div`
 
 const HamburgerMenu = styled(Box)`
     transition : all 0.3s;
-    height : ${({ open }) => open ? '230px' : '0'};
+    height : ${({ open }) => open ? '270px' : '0'};
     overflow : hidden;
     @media screen and (min-width : 1175px){
         display : none;
