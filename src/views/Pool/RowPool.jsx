@@ -22,6 +22,7 @@ import { RiShareBoxLine } from 'react-icons/ri';
 import { BiLockAlt } from 'react-icons/bi';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs'
 import { ethers } from "ethers";
+import ConnectMenu from "../../components/TopBar/ConnectMenu";
 
 
 const compound = [
@@ -41,7 +42,7 @@ const customStyles1 = {
         maxWidth: '500px',
         transform: 'translate(-50%, -50%)',
         fontFamily: 'Poppins',
-        borderRadius: '20px'
+        borderRadius: '20px',
     },
 };
 
@@ -52,7 +53,7 @@ const customStyles = {
         right: 'auto',
         bottom: 'auto',
         marginRight: '-50%',
-        height: 'calc(100vh - 150px)',
+        maxHeight: 'calc(100vh - 60px)',
         width: '100%',
         maxWidth: '500px',
         transform: 'translate(-50%, -50%)',
@@ -61,7 +62,7 @@ const customStyles = {
     },
 };
 
-const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
+const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
 
     const [showdetail, setShowDetail] = useState([]);
 
@@ -79,7 +80,7 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
     const [compoundday, setCompoundDay] = useState(-1);
     const [showcalcdetail, setShowCalcDetail] = useState(false);
     const [compoundcalc, setCompoundCalc] = useState(false);
-    
+
 
     function tokenToUSD(amount, decimal) {
         if (!tokenInfo || !amount) return 'null';
@@ -161,8 +162,8 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
                     await ManualContract.withdraw(ethers.utils.parseEther(temp));
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const LockContract = new ethers.Contract(address, LockABI, signer);
                 if (modaldata.isStake) {
                     await LockContract.deposit(ethers.utils.parseEther(temp), type);
@@ -191,8 +192,8 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
                 await contract.compoundReward({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.compoundReward(type, { value: pools[i].performanceFee });
             }
@@ -216,8 +217,8 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
                 await contract.compoundDividend({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.compoundDividend(type, { value: pools[i].performanceFee });
             }
@@ -241,8 +242,8 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
                 await contract.claimReward({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.claimReward(type, { value: pools[i].performanceFee });
             }
@@ -266,8 +267,8 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
                 await contract.claimDividend({ value: pools[i].performanceFee })
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.claimDividend(type, { value: pools[i].performanceFee });
             }
@@ -280,7 +281,7 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
         setPending(_pending);
     }
 
-   
+
 
 
     return (
@@ -463,8 +464,8 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
                 pools.map((data, i) => {
                     return <>
                         <Box display={'flex'} justifyContent={'space-between'} alignItems={'center'} fontWeight={'400'} padding={'16px 10px'} borderBottom={i < pools.length - 1 ? '1px solid #b7e2fa' : 'none'}>
-                            <Box display={'flex'} alignItems={'center'} width={'120px'}>
-                                <Box width={'42px'} height={'42px'}>
+                            <Box display={'flex'} alignItems={'center'} width={'130px'}>
+                                <Box width={'46px'} height={'46px'}>
                                     <img src={'/images/cardlogo.png'} width={'100%'} height={'100%'} />
                                 </Box>
                                 <Box fontSize={'9px'} ml={'10px'}>
@@ -660,7 +661,7 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
                                         }
                                     </Box>
                                     <Box display={'flex'} justifyContent={'space-between'} fontSize={'10px'} mt={'10px'}>
-                                        <Box>
+                                        <Box width={'100%'}>
                                             <Box color={'#b7e2fa'}>OGEM STAKED</Box>
                                             {
                                                 data.allowance && Number(data.allowance) >= Math.pow(10, 28) && Number(data.stakingAmount) > 0 ?
@@ -676,6 +677,16 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
                                                         }
                                                     </> : ''
                                             }
+                                            {Number(data.allowance) < Math.pow(10, 28) || !data.allowance ?
+                                                account ?
+                                                    <EnableButton onClick={() => onApproveContract(i, data._address)} disabled={pending[i]}>
+                                                        <Box width={'100%'} height={'35px'} fontSize={'14px'}>
+                                                            Enable
+                                                        </Box>
+                                                    </EnableButton> :
+                                                    <ConnectMenu width={'100%'} height={'35px'} ispool={true} />
+                                                : ''
+                                            }
                                         </Box>
                                         {Number(data.allowance) >= Math.pow(10, 28) && data.allowance &&
                                             Number(data.stakingAmount) > 0 ?
@@ -683,41 +694,44 @@ const RowPool = ({ account, pools, open, setOpen, tokenInfo }) => {
                                                 <StakeAction onClick={() => {
                                                     setModalOpen(true);
                                                     setModalData({
-                                                        modallocknum: i, address: data.address, isStake: false, balance: Number(data.stakingAmount)
+                                                        modallocknum: i, address: data._address, isStake: false, balance: Number(data.stakingAmount)
                                                     });
                                                 }}>-</StakeAction>
                                                 <Box mr={'5px'} />
                                                 <StakeAction onClick={() => {
                                                     setModalOpen(true);
                                                     setModalData({
-                                                        modallocknum: i, address: data.address, isStake: true, balance: Number(tokenInfo.balance)
+                                                        modallocknum: i, address: data._address, isStake: true, balance: Number(tokenInfo.balance)
                                                     })
                                                 }}>+</StakeAction>
                                             </Box>
                                             : ''
                                         }
-                                        {Number(data.allowance) < Math.pow(10, 28) || !data.allowance ?
-                                            account ?
-                                                <EnableButton onClick={() => onApproveContract(i, data.address)} disabled={pending[i]}>
-                                                    <Box width={'100%'} height={'35px'} fontSize={'14px'}>
-                                                        Enable
-                                                    </Box>
-                                                </EnableButton> :
-                                                <EnableButton onClick={() => setOpen(true)}>
-                                                    <Box width={'100%'} height={'35px'} fontSize={'14px'}>
-                                                        Connect Wallet
-                                                    </Box>
-                                                </EnableButton>
-                                            : ''
-                                        }
+
                                     </Box>
-                                    <Box fontSize={'10px'} mt={'10px'}>
-                                        <Box color={'#b7e2fa'}>LOCKED</Box>
-                                        {data.locked ?
-                                            <Box color={'white'}  >{numberWithCommas(Number(data.locked).toFixed(0))}</Box> :
-                                            <Skeleton variant={'text'} width={'60px'} style={{ transform: 'unset', marginBottom: '3px' }} />
-                                        }
-                                    </Box>
+                                    {Number(data.allowance) >= Math.pow(10, 28) && data.allowance &&
+                                        Number(data.stakingAmount) === 0 ?
+                                        <EnableButton onClick={() => {
+                                            setModalOpen(true);
+                                            setModalData({
+                                                modallocknum: i, address: data._address, isStake: true, balance: Number(tokenInfo.balance)
+                                            })
+                                        }} disabled={pending[i]}>
+                                            <Box width={'100%'} height={'35px'} fontSize={'14px'}>
+                                                Stake
+                                            </Box>
+                                        </EnableButton>
+                                        : ''
+                                    }
+                                    {Number(data.allowance) >= Math.pow(10, 28) && data.allowance ?
+                                        <Box fontSize={'10px'} mt={'10px'}>
+                                            <Box color={'#b7e2fa'}>LOCKED</Box>
+                                            {data.locked ?
+                                                <Box color={'white'}  >{numberWithCommas(Number(data.locked).toFixed(0))}</Box> :
+                                                <Skeleton variant={'text'} width={'60px'} style={{ transform: 'unset', marginBottom: '3px' }} />
+                                            }
+                                        </Box> : ''
+                                    }
                                 </Box>
                             </Box>
                             <Box
@@ -815,7 +829,7 @@ const TotalStaked = styled(Box)`
     display : flex;
     justify-content : space-between;
     width : 100%;
-    max-width : 150px;
+    max-width : 100px;
     flex-direction : column;
     @media screen and (max-width : 700px){
         display : none;
@@ -864,7 +878,6 @@ const APRPanel = styled(Box)`
 
 const EnableButton = styled.button`
     font-family : 'Poppins';
-    max-width : 150px;
     width : 100%;
     color : #494949;
     border-radius : 7px;

@@ -24,6 +24,7 @@ import { RiShareBoxLine } from 'react-icons/ri';
 import { BiLockAlt } from 'react-icons/bi';
 import { BsChevronDown, BsChevronUp } from 'react-icons/bs'
 import { ethers } from "ethers";
+import ConnectMenu from "../../components/TopBar/ConnectMenu";
 
 const customStyles1 = {
     content: {
@@ -47,7 +48,7 @@ const customStyles = {
         right: 'auto',
         bottom: 'auto',
         marginRight: '-50%',
-        height: 'calc(100vh - 150px)',
+        maxHeight: 'calc(100vh - 60px)',
         width: '100%',
         maxWidth: '500px',
         transform: 'translate(-50%, -50%)',
@@ -62,7 +63,7 @@ const compound = [
     [2100.80 / 310.45 / 310.45, 1940.19 / 310.45 / 310.45, 1778.71 / 310.45 / 310.45, 1488.07 / 310.45 / 310.45]
 ]
 
-const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
+const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
 
     const [showdetail, setShowDetail] = useState([]);
     const [pending, setPending] = useState([]);
@@ -143,8 +144,8 @@ const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
                     await ManualContract.withdraw(ethers.utils.parseEther(temp));
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const LockContract = new ethers.Contract(address, LockABI, signer);
                 if (modaldata.isStake) {
                     await LockContract.deposit(ethers.utils.parseEther(temp), type);
@@ -173,8 +174,8 @@ const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
                 await contract.compoundReward({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.compoundReward(type, { value: pools[i].performanceFee });
             }
@@ -198,8 +199,8 @@ const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
                 await contract.compoundDividend({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.compoundDividend(type, { value: pools[i].performanceFee });
             }
@@ -223,8 +224,8 @@ const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
                 await contract.claimReward({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.claimReward(type, { value: pools[i].performanceFee });
             }
@@ -248,8 +249,8 @@ const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
                 await contract.claimDividend({ value: pools[i].performanceFee })
             }
             else {
-                const address = modaldata.address.split(' ')[0];
-                const type = modaldata.address.split(' ')[1];
+                const address = modaldata._address.split(' ')[0];
+                const type = modaldata._address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.claimDividend(type, { value: pools[i].performanceFee });
             }
@@ -467,7 +468,7 @@ const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
                                 <Box fontSize={'14px'} color={'#b7e2fa'}>Stake OGEM</Box>
                                 <Box fontSize={'10px'} color={'white'}>Reflection BNB</Box>
                             </Box>
-                            <Box width={'40px'} height={'40px'}>
+                            <Box width={'46px'} height={'46px'}>
                                 <img src={'/images/cardlogo.png'} width={'100%'} height={'100%'} />
                             </Box>
                         </PoolHeader>
@@ -602,14 +603,14 @@ const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
                                             <StakeAction onClick={() => {
                                                 setModalOpen(true);
                                                 setModalData({
-                                                    modallocknum: i, address: data.address, isStake: false, balance: Number(data.stakingAmount)
+                                                    modallocknum: i, address: data._address, isStake: false, balance: Number(data.stakingAmount)
                                                 });
                                             }}>-</StakeAction>
                                             <Box mr={'5px'} />
                                             <StakeAction onClick={() => {
                                                 setModalOpen(true);
                                                 setModalData({
-                                                    modallocknum: i, address: data.address, isStake: true, balance: Number(tokenInfo.balance)
+                                                    modallocknum: i, address: data._address, isStake: true, balance: Number(tokenInfo.balance)
                                                 })
                                             }}>+</StakeAction>
                                         </Box>
@@ -623,11 +624,7 @@ const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
                                                 Enable
                                             </Box>
                                         </EnableButton> :
-                                        <EnableButton onClick={() => setOpen(true)}>
-                                            <Box width={'100%'} height={'35px'} fontSize={'14px'}>
-                                                Connect Wallet
-                                            </Box>
-                                        </EnableButton>
+                                        <ConnectMenu width={'100%'} height={'35px'} ispool={true} />
                                     : ''
                                 }
                                 {Number(data.allowance) >= Math.pow(10, 28) && data.allowance &&
@@ -635,7 +632,7 @@ const CardPool = ({ account, pools, tokenInfo, open, setOpen }) => {
                                     <EnableButton onClick={() => {
                                         setModalOpen(true);
                                         setModalData({
-                                            modallocknum: i, address: data.address, isStake: true, balance: Number(tokenInfo.balance)
+                                            modallocknum: i, address: data._address, isStake: true, balance: Number(tokenInfo.balance)
                                         })
                                     }} disabled={pending[i]}>
                                         <Box width={'100%'} height={'35px'} fontSize={'14px'}>
@@ -889,7 +886,7 @@ const CustomInput = styled(OutlinedInput)`
     width: 100%;
     border-radius: 10px!important;
     border : 1px solid rgb(64 75 151);
-    color : black!important;
+    color : white!important;
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
     -webkit-appearance: none; 
@@ -898,25 +895,26 @@ const CustomInput = styled(OutlinedInput)`
 `;
 
 const DaySelectPanel = styled(Box)`
-    background-color: rgb(239, 244, 245);
-    border-radius: 16px;
+    background-color: rgb(50, 50, 50);
+    border-radius: 10px;
     display: inline-flex;
     border: 1px solid rgb(233, 234, 235);
     width : 100%;
     font-size : 21px;
->div{
+    padding : 5px;
+    >div{
         display : flex;
-    justify-content : center;
-    align-items : center;
-    cursor : pointer;
-    padding : 10px 0px;
-}
+        justify-content : center;
+        align-items : center;
+        cursor : pointer;
+        padding : 5px 0px;
+    }
     `;
 
 const DaySelectCard = styled(Box)`
-    background-color: ${({ active }) => active ? 'rgb(15, 33, 49)' : 'unset'};
+    background-color: ${({ active }) => active ? 'rgb(100,100,100)' : 'unset'};
     color: ${({ active }) => active ? 'white' : 'unset'};
-    border-radius : 16px;
+    border-radius : 10px;
     transition : all 0.2s;
 `;
 export default CardPool;

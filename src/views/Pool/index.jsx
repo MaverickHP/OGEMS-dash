@@ -11,7 +11,7 @@ import Footer from "../../components/Footer/Footer";
 
 
 
-const Pool = ({ account, pooldatas, tokenInfo, open, setOpen }) => {
+const Pool = ({ account, pooldatas, tokenInfo, fetchPoolData }) => {
 
     const [viewtype, setViewType] = useState(false);
     const [stakedonly, setStakedOnly] = useState(false);
@@ -86,7 +86,7 @@ const Pool = ({ account, pooldatas, tokenInfo, open, setOpen }) => {
             <StyledContainer>
                 <StrokePanel >
                     <Box width={'fit-content'} mx={'auto'}>
-                        <Box width={'364px'} height={'119px'}>
+                        <Box width={'292px'} height={'95px'}>
                             <img src={'/images/logo.png'} width={'100%'} height={'100%'} />
                         </Box>
                         <Box fontSize={'12px'} color={'white'} maxWidth={'320px'} mt={'10px'}>
@@ -133,8 +133,8 @@ const Pool = ({ account, pooldatas, tokenInfo, open, setOpen }) => {
                         </Box>
                     </OptionPanel>
 
-                    {viewtype ? <RowPool pools={pools} account={account} open={open} setOpen={setOpen} tokenInfo={tokenInfo} /> :
-                        <CardPool pools={pools} account={account} tokenInfo={tokenInfo} open={open} setOpen={setOpen} />}
+                    {viewtype ? <RowPool pools={pools} account={account} fetchPoolData={fetchPoolData} tokenInfo={tokenInfo} /> :
+                        <CardPool pools={pools} account={account} tokenInfo={tokenInfo} fetchPoolData={fetchPoolData} />}
                 </PoolPanel>
             </StyledContainer >
             <Footer />

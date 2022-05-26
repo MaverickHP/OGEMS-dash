@@ -7,7 +7,7 @@ import { useAddress, useWeb3Context } from "src/hooks/web3Context";
 import styled from 'styled-components'
 import { shorten } from "../../helpers";
 
-function ConnectMenu({ theme }) {
+function ConnectMenu({ theme, ispool, width, height }) {
   const { connect, disconnect, connected, web3, chainID } = useWeb3Context();
   const address = useAddress();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -73,35 +73,31 @@ function ConnectMenu({ theme }) {
       onMouseLeave={e => (pendingTransactions && pendingTransactions.length > 0 ? handleClick(e) : null)}
       className="wallet-menu"
       id="wallet-menu"
+      style = {{width : '100%'}}
     >
-      {buttonText === 'Connect Wallet' ? <ConnectButton
-        className={buttonStyles}
-        variant="contained"
-        color="secondary"
-        size="large"
-        style={pendingTransactions.length > 0 ? { color: primaryColor } : {}}
-        onClick={clickFunc}
-        onMouseOver={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-        key={1}
-      >
-        {buttonText}
-      </ConnectButton> :
+      {buttonText === 'Connect Wallet' && !ispool ? <ConnectButton
 
-        <ConnectedButton
-          className={buttonStyles}
-          variant="contained"
-          color="secondary"
-          size="large"
-          style={pendingTransactions.length > 0 ? { color: primaryColor } : {}}
-          onClick={clickFunc}
-          onMouseOver={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-          key={1}
-        >
-          <Box />
-          {buttonText}
-        </ConnectedButton>
+        onClick={clickFunc}      >
+        {buttonText}
+      </ConnectButton> : ''}
+
+      {buttonText !== 'Connect Wallet' && !ispool ? <ConnectedButton
+
+        onClick={clickFunc}
+      >
+        <Box />
+        {buttonText}
+      </ConnectedButton> : ''}
+
+      {ispool && buttonText === 'Connect Wallet' ? <EnableButton
+
+        onClick={clickFunc}
+        width={width}
+        height={height}
+      >
+        <Box />
+        {buttonText}
+      </EnableButton> : ''
       }
     </div>
   );
@@ -151,4 +147,26 @@ const ConnectedButton = styled(Box)`
     cursor : pointer;
 `;
 
+const EnableButton = styled.button`
+    font-family : 'Poppins';
+    width : ${({ width }) => width};
+    height : ${({ height }) => height};
+    color : #494949;
+    border-radius : 7px;
+    background-color : #e2f4fe;
+    cursor : pointer;
+    padding : 0;
+    outline : none;
+    border: none;
+    >div{
+        display : flex;
+    justify-content : center;
+    align-items : center;
+    }
+    :disabled{
+        color : rgb(150,150,150);
+        background-color :  #e2f4feb5;
+        cursor : not-allowed;
+    }
+`;
 export default ConnectMenu;

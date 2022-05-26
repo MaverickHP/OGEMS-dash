@@ -336,7 +336,7 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
     <>
       <StyledContainer>
         <Box width={'fit-content'} mx={'auto'}>
-          <Box width={'364px'} height={'119px'}>
+          <Box width={'364'} height={'119px'}>
             <img src={'/images/logo.png'} width={'100%'} height={'100%'} />
           </Box>
           <Box width={'260px'} fontSize={'12px'} color={'white'} textAlign={'center'} mx={'auto'} mt={'5px'} lineHeight={'14px'}>
@@ -348,9 +348,18 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
           <RewardPanel>
             {rewardTitles.map((data, i) => {
               return <Panel type='primary' maxWidth={'409px'} width={'100%'} height={'140px'} padding={'15px'} display={'flex'} alignItems={'center'} justifyContent={'space-between'}>
-                <Box mt={i === 1 ? '10px' : ''}>
-                  <img src={`/images/reward${i + 1}.png`} width={'100%'} height={'100%'} />
+                {i === 0 ? <Box width={'123px'} height={'123px'}>
+                  <img src={`/images/reward1.png`} width={'100%'} height={'100%'} />
                 </Box>
+                  : ''}
+                {i === 1 ? <Box width={'110px'} height={'110px'} mt = {'12px'}>
+                  <img src={`/images/reward2.png`} width={'100%'} height={'100%'} />
+                </Box>
+                  : ''}
+                {i === 2 ? <Box width={'140px'} height={'140px'}>
+                  <img src={`/images/reward3.png`} width={'100%'} height={'100%'} />
+                </Box>
+                  : ''}
                 <Box>
                   <Box fontSize={'28px'} color={'white'} display={'flex'} justifyContent={'end'}>
                     {rewardValues[i].split(' ')[0].includes('null') ?
