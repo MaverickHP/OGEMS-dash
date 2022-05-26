@@ -294,13 +294,13 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                 style={customStyles}
                 contentLabel="Example Modal"
             >
-                <Box display={'flex'} justifyContent={'space-between'} mb={'20px'} fontSize={'24px'} py={'20px'} borderBottom={'2px solid rgb(231, 227, 235)'}>
+                <Box display={'flex'} justifyContent={'space-between'} mb={'20px'} fontSize={isSmallScreen ? '18px' : '24px'} py={'20px'} borderBottom={'2px solid rgb(231, 227, 235)'}>
                     <Box>
                         ROI Calculator
                     </Box>
                     <Box onClick={() => setCalcModalOpen(false)}><MdOutlineClose /></Box>
                 </Box>
-                <Box display={'flex'} justifyContent={'space-between'} fontSize={'18px'} mb={'5px'}>
+                <Box display={'flex'} justifyContent={'space-between'} fontSize={isSmallScreen ? '14px' : '18px'} mb={'5px'}>
                     <Box>
                         = {calcshowtype ? numberWithCommas((Number(calcamount) / tokenInfo?.price.price).toFixed(2))
                             : numberWithCommas(Number(tokenInfo?.price.price * Number(calcamount)).toFixed(2))} {calcshowtype ? 'OGEM' : 'USD'}
@@ -321,9 +321,9 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                                 <Box
                                     style={{ cursor: "pointer", background: "rgb(64 75 151)" }}
                                     color={"white"}
-                                    padding={"10px"}
+                                    padding={isSmallScreen ? '8px' : "10px"}
                                     borderRadius={"10px"}
-                                    fontSize={"30px"}
+                                    fontSize={isSmallScreen ? '16px' : "30px"}
                                     onClick={() => {
                                         setCalcAmount(calcshowtype ? tokenInfo?.balance * tokenInfo?.price.price :
                                             tokenInfo?.balance)
@@ -345,7 +345,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
 
                         setCalcAmount(inputNumberFormat(event.target.value));
                     }} />
-                <Box mt={'40px'} fontSize={'18px'}>
+                <Box mt={isSmallScreen ? '15px' : '40px'} fontSize={isSmallScreen ? '12px' : '18px'}>
                     STAKED FOR
                 </Box>
                 <DaySelectPanel>
@@ -355,7 +355,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                     <DaySelectCard active={stakeday === 365} onClick={() => setStakeDay(365)} width={'20%'}>1Y</DaySelectCard>
                     <DaySelectCard active={stakeday === 365 * 5} onClick={() => setStakeDay(365 * 5)} width={'20%'}>5Y</DaySelectCard>
                 </DaySelectPanel>
-                <Box mt={'40px'} fontSize={'18px'}>
+                <Box mt={isSmallScreen ? '15px' : '40px'} fontSize={isSmallScreen ? '12px' : '18px'}>
                     COMPOUNDING EVERY
                 </Box>
                 <Box display={'flex'}>
@@ -374,12 +374,12 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                     </DaySelectPanel>
                 </Box>
 
-                <Box borderRadius={'16px'} mt={'40px'} border={'1px solid black'} padding={'30px'} mx={'20px'} mb={'20px'}>
-                    <Box fontSize={'18px'} >ROI AT CURRENT RATES</Box>
-                    <Box fontSize={'28px'} mt={'10px'} fontWeight={'bold'}>${
+                <Box borderRadius={'16px'} mt={isSmallScreen ? '15px' : '40px'} border={'1px solid black'} padding={isSmallScreen ? '15px' : '30px'} mx={isSmallScreen ? '10px' : '20px'} mb={'20px'}>
+                    <Box fontSize={isSmallScreen ? '14px' : '18px'} >ROI AT CURRENT RATES</Box>
+                    <Box fontSize={isSmallScreen ? '21px' : '28px'} mt={'10px'} fontWeight={'bold'}>${
                         numberWithCommas((calcshowtype ? Number(calcamount) * CalculateRate(calcmodal) :
                             Number(calcamount) * tokenInfo?.price.price * CalculateRate(calcmodal)).toFixed(2))}</Box>
-                    <Box mt={'10px'} fontWeight={'bold'}> ~ {
+                    <Box mt={'10px'} fontWeight={'bold'} color={'#add39c'}> ~ {
                         calcshowtype ? (Number(calcamount) * CalculateRate(calcmodal) / tokenInfo?.price.price).toFixed(3) :
                             (Number(calcamount) * CalculateRate(calcmodal)).toFixed(3)} OGEM({(CalculateRate(calcmodal) * 100).toFixed(2)}%)</Box>
                 </Box>
@@ -393,7 +393,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                     </Box>
                 </Box>
 
-                {showcalcdetail ? <Box px={'20px'} fontSize={'18px'} mt={'20px'}>
+                {showcalcdetail ? <Box px={isSmallScreen ? '10px' : '20px'} fontSize={isSmallScreen ? '12px' : '18px'} mt={isSmallScreen ? '10px' : '20px'}>
                     <Box display={'flex'} justifyContent={'space-between'}>
                         <Box>APR</Box>
                         <Box>{Number(pools[calcmodal]?.rate).toFixed(2)}%</Box>
@@ -402,7 +402,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                         <Box>APY (1x daily compound)</Box>
                         <Box>{Number(pools[calcmodal]?.rate * pools[calcmodal]?.rate * compound[calcmodal][0]).toFixed(2)}%</Box>
                     </Box>
-                    <Box fontSize={'16px'} my={'20px'}>
+                    <Box fontSize={isSmallScreen ? '10px' : '16px'} my={'20px'}>
                         Calculated based on current rates.<br />
                         All figures are estimates provided for your convenience only, and by no means represent guaranteed returns.
                     </Box>
@@ -955,6 +955,9 @@ const DaySelectPanel = styled(Box)`
     border: 1px solid rgb(233, 234, 235);
     width : 100%;
     font-size : 21px;
+    @media screen and (max-width : 450px){
+        font-size : 14px;
+    }
     padding : 5px;
     >div{
         display : flex;
