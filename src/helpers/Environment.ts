@@ -104,7 +104,7 @@ export class EnvHelper {
       // push in the common ethers key in development
       ALL_URIs.push("https://speedy-nodes-nyc.moralis.io/24036fe0cb35ad4bdc12155f/bsc/mainnet");
     }
-    if (ALL_URIs.length === 0) console.error("API keys must be set in the .env");
+    // if (ALL_URIs.length === 0) console.error("API keys must be set in the .env");
     return ALL_URIs;
   }
 

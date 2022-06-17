@@ -3,7 +3,8 @@ import Web3Modal from "web3modal";
 import { StaticJsonRpcProvider, JsonRpcProvider, Web3Provider, WebSocketProvider } from "@ethersproject/providers";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { EnvHelper } from "../helpers/Environment";
-import { NodeHelper } from "src/helpers/NodeHelper";
+import { NodeHelper } from "../helpers/NodeHelper";
+import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
 
 /**
  * kept as function to mimic `getMainnetURI()`
@@ -13,15 +14,13 @@ function getTestnetURI() {
   return EnvHelper.alchemyTestnetURI;
 }
 
-const ALL_URIs = NodeHelper.getNodesUris();
-
 /**
  * "intelligently" loadbalances production API Keys
  * @returns string
  */
 function getMainnetURI(): string {
   // Shuffles the URIs for "intelligent" loadbalancing
-  return "https://speedy-nodes-nyc.moralis.io/24036fe0cb35ad4bdc12155f/bsc/mainnet";
+  return "https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161";
 }
 
 /*
@@ -87,6 +86,38 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
             chainID: 1
           },
         },
+        coinbasewallet: {
+          package: CoinbaseWalletSDK, // Required
+          options: {
+            appName: "My Awesome App", // Required
+            infuraId: "a4d2b749205d4d4197dd52f4f0e17df2", // Required
+            rpc: "https://mainnet.infura.io/v3/a4d2b749205d4d4197dd52f4f0e17df2", // Optional if `infuraId` is provided; otherwise it's required
+            chainId: 1, // Optional. It defaults to 1 if not provided
+            darkMode: true // Optional. Use dark theme, defaults to false
+          }
+        },
+        "custom-binancechainwallet": {
+          display: {
+            logo: "/images/binance.png",
+            name: "Binance Chain Wallet",
+            description: "Connect to your Binance Chain Wallet"
+          },
+          package: true,
+          connector: async () => {
+            let provider = null;
+            if (typeof window.BinanceChain !== 'undefined') {
+              provider = window.BinanceChain;
+              try {
+                await provider.request({ method: 'eth_requestAccounts' })
+              } catch (error) {
+                return { type: 'error', title: 'Error', detail: 'User Rejected' }
+              }
+            } else {
+              return { type: 'error', title: 'Error', detail: 'No Binance Chain Wallet found' }
+            }
+            return provider;
+          }
+        }
       },
     }),
   );
@@ -126,7 +157,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
    * throws an error if networkID is not 1 (mainnet) or 4 (rinkeby)
    */
   const _checkNetwork = (otherChainID: number): Boolean => {
-    console.error(
+    console.log(
       "You are switching networks",
       EnvHelper.getOtherChainID(),
       otherChainID === EnvHelper.getOtherChainID() || otherChainID === 4,
@@ -145,36 +176,59 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
 
   // connect - only runs for WalletProviders
   const connect = useCallback(async () => {
-    const rawProvider = await web3Modal.connect();
-    await web3Modal.toggleModal();
-    // new _initListeners implementation matches Web3Modal Docs
-    // ... see here: https://github.com/Web3Modal/web3modal/blob/2ff929d0e99df5edf6bb9e88cff338ba6d8a3991/example/src/App.tsx#L185
-    _initListeners(rawProvider);
-    const connectedProvider = new Web3Provider(rawProvider, "any");
+    try {
+      const rawProvider = await web3Modal.connect();
+      if (rawProvider.type === 'error') {
+        const clear = await web3Modal.clearCachedProvider();
+        window.localStorage.clear();
+        console.log("disconnected");
 
-    const chainId = await connectedProvider.getNetwork().then(network => network.chainId);
-    const connectedAddress = await connectedProvider.getSigner().getAddress();
-    const validNetwork = _checkNetwork(chainId);
-    if (!validNetwork) {
-      console.error("Wrong network, please switch to mainnet");
-      return;
+        setConnected(false);
+        setAddress('');
+        return rawProvider;
+      }
+      await web3Modal.toggleModal();
+      // new _initListeners implementation matches Web3Modal Docs
+      // ... see here: https://github.com/Web3Modal/web3modal/blob/2ff929d0e99df5edf6bb9e88cff338ba6d8a3991/example/src/App.tsx#L185
+      _initListeners(rawProvider);
+      const connectedProvider = new Web3Provider(rawProvider, "any");
+
+      const chainId = await connectedProvider.getNetwork().then(network => network.chainId);
+      const connectedAddress = await connectedProvider.getSigner().getAddress();
+      const validNetwork = _checkNetwork(chainId);
+      if (!validNetwork) {
+        const clear = await web3Modal.clearCachedProvider();
+        window.localStorage.clear();
+        console.log("disconnected");
+
+        setConnected(false);
+        setAddress('');
+        return { type: 'error', title: 'Error', detail: 'Wrong network, please switch to BSC mainnet' }
+      }
+      // Save everything after we've validated the right network.
+      // Eventually we'll be fine without doing network validations.
+      setAddress(connectedAddress);
+      setProvider(connectedProvider);
+
+      // Keep this at the bottom of the method, to ensure any repaints have the data we need
+      setConnected(true);
+
+      return connectedProvider;
     }
-    // Save everything after we've validated the right network.
-    // Eventually we'll be fine without doing network validations.
-    setAddress(connectedAddress);
-    setProvider(connectedProvider);
-
-    // Keep this at the bottom of the method, to ensure any repaints have the data we need
-    setConnected(true);
-
-    return connectedProvider;
+    catch (error) {
+      console.log(error);
+      return '';
+    }
   }, [provider, web3Modal, connected]);
 
   const disconnect = useCallback(async () => {
-    console.log("disconnecting");
-    web3Modal.clearCachedProvider();
-    setConnected(false);
 
+    const clear = await web3Modal.clearCachedProvider();
+    window.localStorage.clear();
+    console.log("disconnected");
+
+    setConnected(false);
+    setAddress('');
     setTimeout(() => {
       window.location.reload();
     }, 1);
@@ -187,7 +241,7 @@ export const Web3ContextProvider: React.FC<{ children: ReactElement }> = ({ chil
 
   useEffect(() => {
     // logs non-functioning nodes && returns an array of working mainnet nodes, could be used to optimize connection
-    NodeHelper.checkAllNodesStatus();
+    // NodeHelper.checkAllNodesStatus();
   }, []);
 
   return <Web3Context.Provider value={{ onChainProvider }}>{children}</Web3Context.Provider>;

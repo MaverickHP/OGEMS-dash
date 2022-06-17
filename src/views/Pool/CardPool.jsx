@@ -8,8 +8,8 @@ import {
     OutlinedInput,
     TextField,
 } from "@material-ui/core";
-import { useWeb3Context } from "../../hooks";
-import { OGEM_ADDR, First_Lock, Second_Lock, MANUAL_LOCK } from '../../abis/address'
+import { useWeb3Context } from "../../hooks/web3Context";
+import { OGEM_ADDR, MANUAL_LOCK } from '../../abis/address'
 import ERC20ABI from '../../abis/ERC20ABI.json'
 import ManualABI from '../../abis/ManualABI.json'
 import LockABI from '../../abis/LockABI.json'
@@ -38,7 +38,8 @@ const customStyles1 = {
         maxWidth: '500px',
         transform: 'translate(-50%, -50%)',
         fontFamily: 'Poppins',
-        borderRadius: '20px'
+        borderRadius: '20px',
+        color: 'white'
     },
 };
 
@@ -54,7 +55,8 @@ const customStyles = {
         maxWidth: '500px',
         transform: 'translate(-50%, -50%)',
         fontFamily: 'Poppins',
-        borderRadius: '10px'
+        borderRadius: '10px',
+        color: 'white'
     },
 };
 
@@ -64,7 +66,7 @@ const compound = [
     [2100.80 / 310.45 / 310.45, 1940.19 / 310.45 / 310.45, 1778.71 / 310.45 / 310.45, 1488.07 / 310.45 / 310.45]
 ]
 
-const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
+const CardPool = ({ account, pools, tokenInfo, setNotification }) => {
 
     const [showdetail, setShowDetail] = useState([]);
     const [pending, setPending] = useState([]);
@@ -81,6 +83,8 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
     const [showcalcdetail, setShowCalcDetail] = useState(false);
     const [compoundcalc, setCompoundCalc] = useState(false);
     const [calcshowtype, setCalcShowType] = useState(false);
+
+    const [insufficient, setInsufficient] = useState(false);
 
     const { connect, hasCachedProvider, provider, chainID, connected } = useWeb3Context();
 
@@ -118,6 +122,8 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
+
         }
         temp = [...pending];
         temp[type] = false;
@@ -145,8 +151,8 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
                     await ManualContract.withdraw(ethers.utils.parseEther(temp));
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = modaldata.address.split(' ')[0];
+                const type = modaldata.address.split(' ')[1];
                 const LockContract = new ethers.Contract(address, LockABI, signer);
                 if (modaldata.isStake) {
                     await LockContract.deposit(ethers.utils.parseEther(temp), type);
@@ -157,6 +163,8 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
+
         }
         _pending = [...pending];
         _pending[modaldata.modallocknum] = false;
@@ -175,14 +183,16 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
                 await contract.compoundReward({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = pools[i].address.split(' ')[0];
+                const type = pools[i].address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.compoundReward(type, { value: pools[i].performanceFee });
             }
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
+
         }
         _pending = [...pending];
         _pending[i] = false;
@@ -200,14 +210,16 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
                 await contract.compoundDividend({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = pools[i].address.split(' ')[0];
+                const type = pools[i].address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.compoundDividend(type, { value: pools[i].performanceFee });
             }
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
+
         }
         _pending = [...pending];
         _pending[i] = false;
@@ -225,14 +237,16 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
                 await contract.claimReward({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = pools[i].address.split(' ')[0];
+                const type = pools[i].address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.claimReward(type, { value: pools[i].performanceFee });
             }
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
+
         }
         _pending = [...pending];
         _pending[i] = false;
@@ -250,14 +264,15 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
                 await contract.claimDividend({ value: pools[i].performanceFee })
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = pools[i].address.split(' ')[0];
+                const type = pools[i].address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.claimDividend(type, { value: pools[i].performanceFee });
             }
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
         }
         _pending = [...pending];
         _pending[i] = false;
@@ -283,6 +298,30 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
             return Number(stakeday * pools[i]?.rate * pools[i]?.rate * compound[i][compoundday] / 36500);
         return Number(stakeday * pools[i]?.rate / 36500);
     }
+
+    const fingureError = (error) => {
+        if (error.code === "UNPREDICTABLE_GAS_LIMIT") {
+            const list = error.message.split(',');
+            for (let i = 0; i < list.length; i++) {
+                if (list[i].includes('message')) {
+                    let msg = String(list[i]).replaceAll('"', '');
+                    msg.replaceAll('"\"', '');
+                    msg.replaceAll('message:', '');
+                    msg.replaceAll('}', '');
+                    setNotification({ type: 'error', title: msg.split(':')[1].toUpperCase(), detail: msg.split(':')[2] })
+                    break;
+                }
+            }
+        }
+        else
+            setNotification({ type: 'error', title: 'Error', detail: error.message })
+    }
+
+    useEffect(() => {
+        if (amount < 0 || amount > modaldata.balance)
+            setInsufficient(true);
+        else setInsufficient(false);
+    }, [amount, modaldata])
 
     return (
         <Box display={'flex'} justifyContent={'space-between'} my={'20px'} flexWrap={'wrap'} >
@@ -448,16 +487,17 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
                         }
                     }}
                     onChange={(event) => {
-                        if (event.target.value / 1 < 0 || event.target.value / 1 > modaldata.balance)
-                            return;
+                       
                         setAmount(inputNumberFormat(event.target.value));
                     }} />
-
+                {insufficient ? <Box color={'tomato'} display={'flex'} justifyContent={'end'} mt={'5px'} fontWeight={'700'} fontSize={'14px'}>
+                    Insufficient Balance
+                </Box> : ''}
                 <ModalActions>
                     <ModalButton onClick={() => {
                         setModalOpen(false);
                     }}>Cancel</ModalButton>
-                    <ModalButton disabled={!modaldata.balance} onClick={() => onConfirm()}>Confirm</ModalButton>
+                    <ModalButton disabled={!modaldata.balance || insufficient} onClick={() => onConfirm()}>Confirm</ModalButton>
                 </ModalActions>
             </Modal>
             {
@@ -623,7 +663,7 @@ const CardPool = ({ account, pools, tokenInfo, fetchPoolData }) => {
                                                 Enable
                                             </Box>
                                         </EnableButton> :
-                                        <ConnectMenu width={'100%'} height={'35px'} ispool={true} />
+                                        <ConnectMenu width={'100%'} height={'35px'} ispool={true} setNotification={setNotification} />
                                     : ''
                                 }
                                 {Number(data.allowance) >= Math.pow(10, 28) && data.allowance &&
@@ -860,20 +900,20 @@ const ModalActions = styled(Box)`
 
 const ModalButton = styled.button`
     text-align : center;
-    border : 2px solid #b7e2fa;
-    background : white;
-    color : #b7e2fa;
+    background : #1c1c1c;
+    color : #add39c;
     padding : 10px 70px;
     font-size : 21px;
-    border-radius : 10px;
+    border-radius : 5px;
+    border : none;
     cursor : pointer;
     transition : all 0.3s;
     :hover{
-        background : #b7e2fa;
+        background : rgb(40,40,40);
     color : white;
     }
     :disabled{
-        background : rgb(233, 234, 235);
+        background : #1c1c1cb2;
         color : rgb(189, 194, 196);
         cursor : not-allowed;
         border : none;

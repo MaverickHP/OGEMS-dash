@@ -44,6 +44,7 @@ const customStyles1 = {
         transform: 'translate(-50%, -50%)',
         fontFamily: 'Poppins',
         borderRadius: '10px',
+        color: 'white'
     },
 };
 
@@ -59,11 +60,12 @@ const customStyles = {
         maxWidth: '500px',
         transform: 'translate(-50%, -50%)',
         fontFamily: 'Poppins',
-        borderRadius: '10px'
+        borderRadius: '10px',
+        color: 'white'
     },
 };
 
-const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
+const RowPool = ({ account, pools, setNotification, tokenInfo }) => {
 
     const [showdetail, setShowDetail] = useState([]);
 
@@ -83,6 +85,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
     const [compoundcalc, setCompoundCalc] = useState(false);
     const isSmallScreen = useMediaQuery("(max-width: 450px)");
 
+    const [insufficient, setInsufficient] = useState(false);
 
     function tokenToUSD(amount, decimal) {
         if (!tokenInfo || !amount) return 'null';
@@ -137,6 +140,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
         }
         temp = [...pending];
         temp[type] = false;
@@ -164,8 +168,8 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                     await ManualContract.withdraw(ethers.utils.parseEther(temp));
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = modaldata.address.split(' ')[0];
+                const type = modaldata.address.split(' ')[1];
                 const LockContract = new ethers.Contract(address, LockABI, signer);
                 if (modaldata.isStake) {
                     await LockContract.deposit(ethers.utils.parseEther(temp), type);
@@ -176,6 +180,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
         }
         _pending = [...pending];
         _pending[modaldata.modallocknum] = false;
@@ -194,14 +199,15 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                 await contract.compoundReward({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = pools[i].address.split(' ')[0];
+                const type = pools[i].address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.compoundReward(type, { value: pools[i].performanceFee });
             }
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
         }
         _pending = [...pending];
         _pending[i] = false;
@@ -219,14 +225,15 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                 await contract.compoundDividend({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = pools[i].address.split(' ')[0];
+                const type = pools[i].address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.compoundDividend(type, { value: pools[i].performanceFee });
             }
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
         }
         _pending = [...pending];
         _pending[i] = false;
@@ -244,14 +251,15 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                 await contract.claimReward({ value: pools[i].performanceFee });
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = pools[i].address.split(' ')[0];
+                const type = pools[i].address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.claimReward(type, { value: pools[i].performanceFee });
             }
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
         }
         _pending = [...pending];
         _pending[i] = false;
@@ -269,22 +277,44 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                 await contract.claimDividend({ value: pools[i].performanceFee })
             }
             else {
-                const address = modaldata._address.split(' ')[0];
-                const type = modaldata._address.split(' ')[1];
+                const address = pools[i].address.split(' ')[0];
+                const type = pools[i].address.split(' ')[1];
                 const contract = new ethers.Contract(address, LockABI, signer);
                 await contract.claimDividend(type, { value: pools[i].performanceFee });
             }
         }
         catch (error) {
             console.log(error);
+            fingureError(error);
         }
         _pending = [...pending];
         _pending[i] = false;
         setPending(_pending);
     }
 
+    const fingureError = (error) => {
+        if (error.code === "UNPREDICTABLE_GAS_LIMIT") {
+            const list = error.message.split(',');
+            for (let i = 0; i < list.length; i++) {
+                if (list[i].includes('message')) {
+                    let msg = String(list[i]).replaceAll('"', '');
+                    msg.replaceAll('"\"', '');
+                    msg.replaceAll('message:', '');
+                    msg.replaceAll('}', '');
+                    setNotification({ type: 'error', title: msg.split(':')[1].toUpperCase(), detail: msg.split(':')[2] })
+                    break;
+                }
+            }
+        }
+        else
+            setNotification({ type: 'error', title: 'Error', detail: error.message })
+    }
 
-
+    useEffect(() => {
+        if (amount < 0 || amount > modaldata.balance)
+            setInsufficient(true);
+        else setInsufficient(false);
+    }, [amount, modaldata])
 
     return (
         <PoolField mt={'10px'}>
@@ -450,16 +480,17 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                         }
                     }}
                     onChange={(event) => {
-                        if (event.target.value / 1 < 0 || event.target.value / 1 > modaldata.balance)
-                            return;
                         setAmount(inputNumberFormat(event.target.value));
                     }} />
 
+                {insufficient ? <Box color={'tomato'} display={'flex'} justifyContent={'end'} mt={'5px'} fontWeight={'700'} fontSize={'14px'}>
+                    Insufficient Balance
+                </Box> : ''}
                 <ModalActions>
                     <ModalButton onClick={() => {
                         setModalOpen(false);
                     }}>Cancel</ModalButton>
-                    <ModalButton disabled={!modaldata.balance} onClick={() => onConfirm()}>Confirm</ModalButton>
+                    <ModalButton disabled={!modaldata.balance || insufficient} onClick={() => onConfirm()}>Confirm</ModalButton>
                 </ModalActions>
             </Modal>
             {
@@ -686,7 +717,7 @@ const RowPool = ({ account, pools, fetchPoolData, tokenInfo }) => {
                                                             Enable
                                                         </Box>
                                                     </EnableButton> :
-                                                    <ConnectMenu width={'100%'} height={'35px'} ispool={true} />
+                                                    <ConnectMenu width={'100%'} height={'35px'} ispool={true} setNotification={setNotification} />
                                                 : ''
                                             }
                                         </Box>
@@ -775,9 +806,12 @@ const Detail = styled(Box)`
     >div>div:nth-child(1)>div{
         margin-top : 8px;
     }
+    >div:nth-child(1){
+        height : 180px;
+    }
     transition : all 0.2s;
     overflow : hidden;
-    height : ${({ active }) => active ? '210px' : '0'};
+    height : ${({ active }) => active ? '225px' : '0'};
     @media screen and (max-width : 800px){
         >div:nth-child(1){
             flex-direction : column-reverse;
@@ -788,7 +822,10 @@ const Detail = styled(Box)`
                 max-width : 400px;
             }
         }
-        height : ${({ active }) => active ? '495px' : '0'};
+        height : ${({ active }) => active ? '520px' : '0'};
+        >div:nth-child(1){
+            height : 475px;
+        }
     }
 `;
 
@@ -940,7 +977,7 @@ const CustomInput = styled(OutlinedInput)`
     width: 100%;
     border-radius: 10px!important;
     border : 1px solid rgb(64 75 151);
-    color : black!important;
+    color : white!important;
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
     -webkit-appearance: none; 

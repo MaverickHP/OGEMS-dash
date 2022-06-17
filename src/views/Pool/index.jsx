@@ -12,7 +12,7 @@ import { useMediaQuery } from "@material-ui/core";
 
 
 
-const Pool = ({ account, pooldatas, tokenInfo, fetchPoolData }) => {
+const Pool = ({ account, pooldatas, tokenInfo, fetchPoolData, setNotification }) => {
 
     const [viewtype, setViewType] = useState(false);
     const [stakedonly, setStakedOnly] = useState(false);
@@ -134,8 +134,9 @@ const Pool = ({ account, pooldatas, tokenInfo, fetchPoolData }) => {
                         </Box>
                     </OptionPanel>
 
-                    {viewtype ? <RowPool pools={pools} account={account} fetchPoolData={fetchPoolData} tokenInfo={tokenInfo} /> :
-                        <CardPool pools={pools} account={account} tokenInfo={tokenInfo} fetchPoolData={fetchPoolData} />}
+                    {viewtype ?
+                        <RowPool pools={pools} account={account} fetchPoolData={fetchPoolData} tokenInfo={tokenInfo} setNotification={setNotification} /> :
+                        <CardPool pools={pools} account={account} tokenInfo={tokenInfo} fetchPoolData={fetchPoolData} setNotification={setNotification} />}
                 </PoolPanel>
             </StyledContainer >
             <Footer />
@@ -143,8 +144,9 @@ const Pool = ({ account, pooldatas, tokenInfo, fetchPoolData }) => {
     );
 };
 const StyledContainer = styled(Box)`
-    padding-top : 64px;
+    padding-top : 96px;
     min-height : 100vh;
+    color : white;
 `;
 
 const StrokeText = styled(Box)`

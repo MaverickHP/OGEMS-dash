@@ -1,41 +1,17 @@
 import { AppBar, Toolbar, Box, Button, SvgIcon } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import useMediaQuery from "@material-ui/core/useMediaQuery";
-import { ReactComponent as MenuIcon } from "../../assets/icons/hamburger.svg";
-import OhmMenu from "./OhmMenu.jsx";
-import ThemeSwitcher from "./ThemeSwitch.jsx";
 import ConnectMenu from "./ConnectMenu.jsx";
 import styled from 'styled-components'
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
-import { AiFillFacebook } from 'react-icons/ai'
 import { FaInstagram, FaYoutube, FaTwitter, FaPaperPlane } from 'react-icons/fa';
 import { GiHamburgerMenu } from 'react-icons/gi'
 import "./topbar.scss";
 
-const useStyles = makeStyles(theme => ({
-  appBar: {
-    [theme.breakpoints.up("sm")]: {
-      width: "100%",
-      padding: "10px",
-    },
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
-    background: "transparent",
-    backdropFilter: "none",
-    zIndex: 10,
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
-    [theme.breakpoints.up("981")]: {
-      display: "none",
-    },
-  },
-}));
 
-function TopBar({ theme, toggleTheme, handleDrawerToggle }) {
-  const classes = useStyles();
+function TopBar({ theme, setNotification }) {
   const isVerySmallScreen = useMediaQuery("(max-width: 450px)");
   const [hamburgeropen, setHamburgerOpen] = useState(false);
 
@@ -53,6 +29,7 @@ function TopBar({ theme, toggleTheme, handleDrawerToggle }) {
   useEffect(() => {
     console.log(hamburgeropen)
   }, [hamburgeropen])
+
   return (
     <StyledContainer >
       <Box display={'flex'} width={'100%'}>
@@ -65,7 +42,7 @@ function TopBar({ theme, toggleTheme, handleDrawerToggle }) {
             <Menus>
               <Box><Link to={'/reward'} style={{ color: 'white', textDecoration: 'unset' }}>Tracker</Link></Box>
               <Box><Link to={'/pools'} style={{ color: 'white', textDecoration: 'unset' }}>Pools</Link></Box>
-              <Box>FAQ</Box>
+              <Box><a>FAQ</a></Box>
               <Box><a href={'https://onlygems-finance.gitbook.io/onlygems-finance/'} target={'_blank'} style={{ textDecoration: 'unset', color: 'white' }}>WhitePaper</a></Box>
               <Box><a href={'https://onlygems.finance/'} target={'_blank'} style={{ textDecoration: 'unset', color: 'white' }}>Official Website</a></Box>
             </Menus>
@@ -81,7 +58,7 @@ function TopBar({ theme, toggleTheme, handleDrawerToggle }) {
         <Box mr={'20px'} display={'flex'} alignItems={'center'}>
           <Box display={'flex'} alignItems={'center'} height={'64px'} >
             <Box display={isVerySmallScreen ? 'none' : 'unset'}>
-              <ConnectMenu theme={theme} />
+              <ConnectMenu theme={theme} setNotification={setNotification} />
             </Box>
             <Hamburger onClick={() => setHamburgerOpen(!hamburgeropen)} ref={hamburger}>
               <GiHamburgerMenu />
@@ -94,7 +71,7 @@ function TopBar({ theme, toggleTheme, handleDrawerToggle }) {
           <Menus open={hamburgeropen}>
             <Box><Link to={'/reward'} style={{ color: 'white', textDecoration: 'unset' }}>Tracker</Link></Box>
             <Box><Link to={'/pools'} style={{ color: 'white', textDecoration: 'unset' }} >Pools</Link></Box>
-            <Box>FAQ</Box>
+            <Box><a>FAQ</a></Box>
             <Box><a href={'https://onlygems-finance.gitbook.io/onlygems-finance/'} target={'_blank'} style={{ textDecoration: 'unset', color: 'white' }}>WhitePaper</a></Box>
             <Box><a href={'https://onlygems.finance/'} target={'_blank'} style={{ textDecoration: 'unset', color: 'white' }}>Official Website</a></Box>
 
@@ -128,21 +105,6 @@ const StyledContainer = styled(Box)`
     z-index : 10;
 `;
 
-const LogoText = styled(Box)`
-    font-family : none;
-    font-size : 28px;
-    font-weight : 400;
-    color : #d3824a;
-    font-style : italic;
-    -webkit-text-stroke: 0.3px #363636;
-    margin-left : 20px;
-    >span{
-        color : white;
-    }
-    @media screen and (max-width : 500px){
-        display : none;
-    }
-`;
 
 const Divider = styled(Box)`
     width : 2px;
@@ -162,6 +124,12 @@ const Menus = styled(Box)`
     max-width : 500px;
     >div{
         cursor : pointer;
+        >a{
+          :hover{
+            color : rgb(40 240 255)!important;
+          }
+          transition : all 0.3s;
+        }
     }
     @media screen and (max-width : 1175px){
         display : ${({ open }) => open ? '' : 'none'};
@@ -182,6 +150,12 @@ const Socials = styled(Box)`
     max-width : 80px;
     >div{
         cursor : pointer;
+        >a{
+          :hover{
+            color : rgb(40 240 255)!important;
+          }
+          transition : all 0.3s;
+        }
     }
     @media screen and (max-width : 1175px){
         display : ${({ open }) => open ? '' : 'none'};
@@ -208,7 +182,7 @@ const Hamburger = styled.div`
 
 const HamburgerMenu = styled(Box)`
     transition : all 0.3s;
-    height : ${({ open }) => open ? '270px' : '0'};
+    height : ${({ open }) => open ? '290px' : '0'};
     overflow : hidden;
     @media screen and (min-width : 1175px){
         display : none;

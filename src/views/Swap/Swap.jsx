@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
-import { QueryClient, QueryClientProvider } from "react-query";
 import { Box } from "@material-ui/core";
 import styled from "styled-components";
-import { ethers } from "ethers";
-import { useAddress, useWeb3Context } from "../../hooks/web3Context";
 import { PieChart } from 'react-minimal-pie-chart';
 import { Skeleton } from "@material-ui/lab";
-import { Shitface_BNB_ADDR } from "../../abis/address";
+import { OGEM_BNB_ADDR } from "../../abis/address";
 import PriceChart from '../../components/Tracker/PriceChart'
 import HighchartsReact from 'highcharts-react-official';
 import Highcharts from 'highcharts/highstock';
@@ -54,19 +51,19 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
 
   const isSmallScreen = useMediaQuery('(max-width: 450px)');
   useEffect(() => {
-    if (!tokentxlist) return;
-    const _txinfo = fetchTransactionData(tokentxlist, timetab)
+    if (!tokenwholetxlist) return;
+    const _txinfo = fetchTransactionData(tokenwholetxlist, timetab)
     setTxInfo(_txinfo);
-    setTxDailyData(fetchTransactionData(tokentxlist, 24 * 3600));
-  }, [tokentxlist, timetab])
+    setTxDailyData(fetchTransactionData(tokenwholetxlist, 24 * 3600));
+  }, [tokenwholetxlist, timetab])
 
   useEffect(() => {
-    if (!tokenwholetxlist || !tokentxlist || !reserves || !tokenInfo) return;
+    if (!tokenwholetxlist || !reserves || !tokenInfo) return;
     let _pricedata = [];
-    _pricedata.push(fetchPriceData(tokentxlist, 5 / 12 + 1, 3600).temp1);
-    _pricedata.push(fetchPriceData(tokentxlist, 1, 3600).temp1);
-    _pricedata.push(fetchPriceData(tokentxlist, 6, 3600).temp1);
-    _pricedata.push(fetchPriceData(tokentxlist, 24, 3600).temp1);
+    _pricedata.push(fetchPriceData(tokenwholetxlist, 5 / 12 + 1, 3600).temp1);
+    _pricedata.push(fetchPriceData(tokenwholetxlist, 1, 3600).temp1);
+    _pricedata.push(fetchPriceData(tokenwholetxlist, 6, 3600).temp1);
+    _pricedata.push(fetchPriceData(tokenwholetxlist, 24, 3600).temp1);
     _pricedata.push(fetchPriceData(tokenwholetxlist, 7, 3600 * 24).temp1);
     _pricedata.push(fetchPriceData(tokenwholetxlist, 30, 3600 * 24).temp1);
     _pricedata.push(fetchPriceData(tokenwholetxlist, 365, 3600 * 24).temp1);
@@ -76,17 +73,17 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
       temp.push(percent);
     }
     setPricePercent(temp);
-  }, [tokenwholetxlist, tokentxlist, reserves, tokenInfo]);
+  }, [tokenwholetxlist, reserves, tokenInfo]);
 
   useEffect(() => {
-    if (!tokentxlist || !reserves || !tokenInfo) return;
-    const _pricedata = fetchPriceData(tokentxlist, 24, 3600).temp1;
+    if (!tokenwholetxlist || !reserves || !tokenInfo) return;
+    const _pricedata = fetchPriceData(tokenwholetxlist, 24, 3600).temp1;
     setPriceData(_pricedata);
-  }, [tokentxlist, reserves, tokenInfo])
+  }, [tokenwholetxlist, reserves, tokenInfo])
 
   useEffect(() => {
     if (!tokenwholetxlist || !reserves || !tokenInfo || tokenPriceList.length) return;
-    const _pricelist = fetchPriceData(tokenwholetxlist, 365 * 4, 3600 * 3).temp2;
+    const _pricelist = fetchPriceData(tokenwholetxlist, 365 * 12, 3600).temp2;
     console.log("!!!!!");
     setTokenPriceList(_pricelist);
   }, [tokenwholetxlist, reserves, tokenInfo])
@@ -97,13 +94,13 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
       if (tokentxlist[i].timeStamp >= new Date().getTime() / 1000 - timetab) {
         if (!tokentxlist[i].from || !tokentxlist[i].to) continue;
         txcount++;
-        if (tokentxlist[i].to.toLowerCase() === Shitface_BNB_ADDR.toLowerCase()) {
+        if (tokentxlist[i].to.toLowerCase() === OGEM_BNB_ADDR.toLowerCase()) {
           sellcount++;
         }
-        if (tokentxlist[i].from.toLowerCase() === Shitface_BNB_ADDR.toLowerCase()) {
+        if (tokentxlist[i].from.toLowerCase() === OGEM_BNB_ADDR.toLowerCase()) {
           buycount++;
         }
-        volume += tokentxlist[i].value / Math.pow(10, 18);
+        volume += tokentxlist[i].value / Math.pow(10, 9);
       }
     }
     return { txcount, sellcount, buycount, volume };
@@ -114,13 +111,13 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
     let temp = [];
     for (let i = 0; i < tokentxlist.length; i++) {
       if (!tokentxlist[i].from || !tokentxlist[i].to) continue;
-      if (tokentxlist[i].to.toLowerCase() === Shitface_BNB_ADDR.toLowerCase()) {
+      if (tokentxlist[i].to.toLowerCase() === OGEM_BNB_ADDR.toLowerCase()) {
         reserve1 += tokentxlist[i].value / Math.pow(10, 18) * priceBNB;
-        reserve0 -= tokentxlist[i].value / Math.pow(10, 18);
+        reserve0 -= tokentxlist[i].value / Math.pow(10, 9);
       }
-      if (tokentxlist[i].from.toLowerCase() === Shitface_BNB_ADDR.toLowerCase()) {
+      if (tokentxlist[i].from.toLowerCase() === OGEM_BNB_ADDR.toLowerCase()) {
         reserve1 -= tokentxlist[i].value / Math.pow(10, 18) * priceBNB;
-        reserve0 += tokentxlist[i].value / Math.pow(10, 18);
+        reserve0 += tokentxlist[i].value / Math.pow(10, 9);
       }
       temp.push({
         timeStamp: tokentxlist[i].timeStamp,
@@ -530,17 +527,17 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
                       startAngle={90}
                       data={[
                         {
-                          title: '50%',
-                          // title: `${(reserves && tokenInfo ? reserves._reserve0 * tokenInfo.price.price / (reserves._reserve1 * tokenInfo.price.price / tokenInfo.price.price_BNB + reserves._reserve0 * tokenInfo.price.price) * 100 : 50).toFixed(0)}%`,
-                          // value: reserves && tokenInfo ? reserves._reserve0 * tokenInfo.price.price : 1,
-                          value: 1,
+                          // title: '50%',
+                          title: `${(reserves && tokenInfo ? reserves._reserve0 * tokenInfo.price.price / (reserves._reserve1 * tokenInfo.price.price / tokenInfo.price.price_BNB + reserves._reserve0 * tokenInfo.price.price) * 100 : 50).toFixed(0)}%`,
+                          value: reserves && tokenInfo ? reserves._reserve0 * tokenInfo.price.price : 1,
+                          // value: 1,
                           color: '#b7e2fa'
                         },
                         {
-                          title: '50%',
-                          // title: `${(reserves && tokenInfo ? reserves._reserve1 * tokenInfo.price.price / tokenInfo.price.price_BNB / (reserves._reserve1 * tokenInfo.price.price / tokenInfo.price.price_BNB + reserves._reserve0 * tokenInfo.price.price) * 100 : 50).toFixed(0)}%`,
-                          // value: reserves && tokenInfo ? reserves._reserve1 * tokenInfo.price.price / tokenInfo.price.price_BNB : 1,
-                          value: 1,
+                          // title: '50%',
+                          title: `${(reserves && tokenInfo ? reserves._reserve1 * tokenInfo.price.price / tokenInfo.price.price_BNB / (reserves._reserve1 * tokenInfo.price.price / tokenInfo.price.price_BNB + reserves._reserve0 * tokenInfo.price.price) * 100 : 50).toFixed(0)}%`,
+                          value: reserves && tokenInfo ? reserves._reserve1 * tokenInfo.price.price / tokenInfo.price.price_BNB : 1,
+                          // value: 1,
                           color: '#add39c'
                         },
                       ]}
@@ -654,19 +651,19 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
                       </Box>
                       <Box />
                     </Box>
-                    <Box display={'flex'} justifyContent={'space-between'} fontSize={'12px'} lineHeight={1.3} mt={'5px'} px={'10px'}>
+                    <Box display={'flex'} justifyContent={'space-between'} fontSize={'12px'} lineHeight={1.3} mt={'5px'} px={'10px'} color={'black'}>
                       <Box width={'60px'}>
                         <Box color={'rgb(150,150,150)'}>Transp.Vol</Box>
-                        <Box display={'flex'}>${tokenToUSD(txdailydata ? txdailydata.volume.toString() : txdailydata, 0)?.includes('null') ?
+                        <Box display={'flex'}>{tokenToUSD(txdailydata ? txdailydata.volume.toString() : txdailydata, 0)?.includes('null') ?
                           <Skeleton variant={'text'} width={'50px'} style={{ transform: 'unset', marginRight: '5px' }} /> :
-                          tokenToUSD(txdailydata ? txdailydata.volume.toString() : txdailydata, 0, true)}
-                        </Box>
+                          <Box>${tokenToUSD(txdailydata ? txdailydata.volume.toString() : txdailydata, 0, true)}</Box>
+                        }</Box>
                       </Box>
                       <Box width={'60px'}>
                         <Box color={'rgb(150,150,150)'}>Volume</Box>
-                        <Box display={'flex'}>${tokenToUSD(txdailydata ? txdailydata.volume.toString() : txdailydata, 0)?.includes('null') ?
+                        <Box display={'flex'}>{tokenToUSD(txdailydata ? txdailydata.volume.toString() : txdailydata, 0)?.includes('null') ?
                           <Skeleton variant={'text'} width={'50px'} style={{ transform: 'unset', marginRight: '5px' }} /> :
-                          tokenToUSD(txdailydata ? txdailydata.volume.toString() : txdailydata, 0, true)}
+                          <Box>${tokenToUSD(txdailydata ? txdailydata.volume.toString() : txdailydata, 0, true)}</Box>}
                         </Box>
                       </Box>
                       <Box width={'60px'}>
@@ -675,9 +672,9 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
                       </Box>
                       <Box width={'60px'}>
                         <Box color={'rgb(150,150,150)'}>Mkt Cap</Box>
-                        <Box display={'flex'}>${tokenToUSD(tokenInfo ? tokenInfo.totalSupply : tokenInfo, 0)?.includes('null') || tokenToUSD(reserves ? reserves._reserve0 : reserves, 4)?.includes('null') ?
+                        <Box display={'flex'}>{tokenToUSD(tokenInfo ? tokenInfo.totalSupply : tokenInfo, 0)?.includes('null') || tokenToUSD(reserves ? reserves._reserve0 : reserves, 4)?.includes('null') ?
                           <Skeleton variant={'text'} width={'50px'} style={{ transform: 'unset', marginRight: '5px' }} /> :
-                          tokenToUSD(tokenInfo ? tokenInfo.totalSupply : tokenInfo, 0, true)
+                          <Box>${tokenToUSD(tokenInfo ? tokenInfo.totalSupply : tokenInfo, 0, true)}</Box>
                         }</Box>
                       </Box>
                       <Box />
@@ -687,7 +684,7 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
               </Box>
             </Panel>
           </LiquidityPanel>
-          <TxListPanel mt={'25px'}>
+          <TxListPanel mt={'25px'} color={'white'}>
             <Panel type={'primary'} width={'100%'} height={'fit-content'} padding={'20px 50px'} fontSize={'14px'} mx={'auto'}>
               <Box fontSize={'27px'} textAlign={'center'} color={'#b7e2fa'} >Recent Dividend Payout List</Box>
               {payouttxlist && payouttxlist.map((data, i) => {
@@ -728,7 +725,7 @@ const Tracker = ({ account, dividendInfo, tokenInfo, withdrawn, tokentxlist, res
 };
 
 const StyledContainer = styled(Box)`
-  padding : 50px 0px 0px 0px;
+  padding : 80px 0px 0px 0px;
   width : 100%;
   max-width : 1300px;
   margin : 0 auto;

@@ -35,7 +35,7 @@ const Footer: React.FC = () => {
 }
 
 const StyledContainer = styled(Box)`
-    background-image : url('/images/footer/Footer.png');
+    background-image : url('/images/footer/footer.png');
     background-size: 1700px 100%;
     width : 100%;
     height : fit-content;

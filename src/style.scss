@@ -21,6 +21,7 @@ body,
     // @media(max-wdith: 1000px) {
     //     overflow: auto;
     // }
+    background-color: rgb(41, 41, 41);
 }
 
 body {
@@ -117,7 +118,20 @@ a:hover svg {
     background: rgba(41, 41, 41, 0.8) !important;
     box-shadow: 10px 15px 40px rgb(20, 20, 20) !important;
 }
-.ReactModalPortal{
+
+.ReactModalPortal {
     position: relative;
     z-index: 10;
+}
+
+.MuiSkeleton-root {
+    background-color: rgba(150, 150, 150, 0.3) !important;
+}
+
+.highcharts-label>text {
+    fill: #1fc7d4 !important;
+}
+#WEB3_CONNECT_MODAL_ID{
+    position: relative;
+    z-index: 1000;
 }

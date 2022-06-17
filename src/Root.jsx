@@ -5,7 +5,6 @@ import { BrowserRouter } from "react-router-dom";
 import { Web3ContextProvider } from "./hooks/web3Context";
 
 import App from "./App";
-import store from "./store";
 
 export default class Root extends Component {
   constructor(props) {
@@ -15,11 +14,9 @@ export default class Root extends Component {
   render() {
     return (
       <Web3ContextProvider>
-        <Provider store={store}>
           <BrowserRouter basename={"/#"}>
             <App />
           </BrowserRouter>
-        </Provider>
       </Web3ContextProvider>
     );
   }
